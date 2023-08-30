@@ -19,12 +19,6 @@ class Api:
     def __init__(
         self, app: FastAPI, qlock: Lock, prefix: str = None
     ) -> None:
-        if shared.cmd_opts.api_auth:
-            self.credentials = {}
-            for auth in shared.cmd_opts.api_auth.split(","):
-                user, password = auth.split(":")
-                self.credentials[user] = password
-
         self.app = app
         self.queue_lock = qlock
         self.prefix = prefix
@@ -50,28 +44,9 @@ class Api:
             response_model=str,
         )
 
-    def auth(self, creds: HTTPBasicCredentials = None):
-        if creds is None:
-            creds = Depends(HTTPBasic())
-        if creds.username in self.credentials:
-            if compare_digest(creds.password,
-                              self.credentials[creds.username]):
-                return True
-
-        raise HTTPException(
-            status_code=401,
-            detail="Incorrect username or password",
-            headers={
-                "WWW-Authenticate": "Basic"
-            })
-
     def add_api_route(self, path: str, endpoint: Callable, **kwargs):
         if self.prefix:
             path = f'{self.prefix}/{path}'
-
-        if shared.cmd_opts.api_auth:
-            return self.app.add_api_route(path, endpoint, dependencies=[
-                   Depends(self.auth)], **kwargs)
         return self.app.add_api_route(path, endpoint, **kwargs)
 
     def endpoint_interrogate(self, req: models.TaggerInterrogateRequest):
