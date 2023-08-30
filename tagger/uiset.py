@@ -107,7 +107,7 @@ class IOData:
         # get root directory of input glob pattern
         base_dir = input_glob.replace('?', '*')
         base_dir = base_dir.split(os.sep + '*').pop(0)
-        msg = 'Invalid input directory'
+        msg = f'Invalid input directory {base_dir}'
         if not os.path.isdir(base_dir):
             cls.err.add(msg)
             return
