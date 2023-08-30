@@ -7,11 +7,6 @@ from pydantic import BaseModel, Field
 
 class TaggerInterrogateRequest(sd_models.InterrogateRequest):
     """Interrogate request model"""
-    model: str = Field(
-        title='Model',
-        description='The interrogate model used.'
-    )
-
     threshold: float = Field(
         default=0.35,
         title='Threshold',
